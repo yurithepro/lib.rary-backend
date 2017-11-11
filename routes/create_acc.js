@@ -47,10 +47,6 @@ function checkUsername(req, res, next){
 				} else
 					return true;
 			});
-		})
-		.catch(function(error) {
-			console.log(error);
-			console.log('\n');
 		});
 	}
 	usernameExists(res.locals.username).then(function(result) {
@@ -123,16 +119,13 @@ function apply(req, res, next){
 				console.log('\n');
 			}).then(function(resp) {
 				newUser._id =  res.locals.id;
-				db.collection("loginList").insert(newUser, {w:1},function(err, resp) {
+				db.collection("loginList").insert(newUser, {w:1}, function(err, resp) {
 					if(err) throw err;
 					console.log(resp + '\n');
 					console.log('Successfully stored: true\n');
 					db.close();
 				});
 			})
-		}).catch(function(error) {
-			console.log(error);
-			console.log('\n');
 		});
 	}	
 	var saltrounds = 10;

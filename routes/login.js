@@ -5,7 +5,6 @@ var url = require('./mydata.js');
 var mongo = require('mongodb').MongoClient;
 var mu = require('mongo-escape').unescape;
 var me = require('mongo-escape').escape;
-var mdbai = require('mongodb-autoincrement');
 
 var router = express.Router();
 
@@ -105,20 +104,39 @@ function verifyCredentials(req, res, next) {
 
 function setLiveID(req, res, next){
 	//check if live ID active lmao
+	function generateClearLiveID(db){
+		var tryID = Math.floor(Math.random() * 1000000);
+		console.log('ENTRY"\n');
+		return db.collection('loginList').find({liveID: tryID}).toArray()
+			.then(function(result) {
+				if(result.length == 0)
+					return tryID;
+				else
+					return then(generateClearLiveID(db));
+			});
+		console.log('EXIT"\n');
+	}
+
 	mongo.connect(url)
 		.then(function(db) {
-			if(Date().valueOf() < res.locals.expiry)
-				return;
-			mdbai.getNextSequence(db, 'loginList')
-				.then(function(seq) {
-					res.locals.liveID = seq;
-					var loginToken = {liveID: seq, expiry: Date(3600000).valueOf()};
-					db.collection('loginList').update({username: res.locals.username}, loginToken);
-				})
-		}).then(function() {
-			res.send('liveID=' + res.locals.liveID + '\n');
-			next();
-		})
+			if(Date().valueOf() > res.locals.expiry)
+				res.send('liveID='+ res.locals.liveID + '\n');
+			else{
+				console.log('ENTRY\n');
+				generateClearLiveID(db)
+				.then(function(result){
+						res.locals.liveID = result;
+						var loginToken = {liveID: res.locals.liveID, expiry: Date(3600000).valueOf()};
+						db.collection('loginList').update({username: res.locals.username}, {$set: loginToken})
+						.then(function(status) {
+							res.send('liveID=' + res.locals.liveID + '\n');
+						});
+				});
+				console.log('EXIT\n');
+			}
+			
+				
+		});
 
 }
 
