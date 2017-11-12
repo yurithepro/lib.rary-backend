@@ -38,25 +38,6 @@ function verifyCredentials(req, res, next) {
 	function retrievePassword(usr){
 		return mongo.connect(url)
 			.then(function(db) {
-				var x = db.collection("loginList").find({username: me(usr)}).toArray()
-				.then(function(result) {
-					console.log('Result: ');
-					console.log(result);
-					console.log('\n');
-					console.log('Result[0].password: \n');
-					console.log(result[0].password);
-					console.log('\n');
-					if(result.length == 0)
-						return null;
-					if(result[0].expiry)
-						res.locals.expiry = result[0].expiry;
-					if(result[0].liveID)
-						res.locals.liveID = result[0].liveID;
-
-					return mu(result[0].password);
-				});
-				console.log(x);
-				console.log('\n');
 				return db.collection("loginList").find({username: me(usr)}).toArray()
 				.then(function(result) {
 					console.log('Result: ');

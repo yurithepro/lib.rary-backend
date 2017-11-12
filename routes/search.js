@@ -13,7 +13,7 @@ var router = express.Router();
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: false }));
-router.post('/', format, performSearch, delegateResponse, errorHandler);
+router.get('/', format, performSearch, delegateResponse, errorHandler);
 
 
 function format(req, res, next){
@@ -32,14 +32,33 @@ function performSearch(req, res, next){
 	mongo.connect(url)
 		.then(function(db) {
 			db.collection('bookList').find({
-				"$test": {
-					$search: res.locals.searchString
+				"$text": {
+					"$search": me(res.locals.searchString),
+					"$caseSensitive": false
 				}
-			}).limit(res.locals.lim)
+			}).limit(res.locals.lim).toArray()
 			.then(function(result) {
+				console.log('Result: ');
 				console.log(result);
-				res.localcs.searchResult = result;
-			})
+				console.log('\n');
+				res.locals.searchResult = result;
+				next();
+			});
 		})
+		.catch(function(error) {
+			console.log('Error: ');
+			console.log(error);
+			console.log('\n');
+		});
 
 }
+
+function delegateResponse(req, res, next){
+	res.send(JSON.stringify(res.locals.searchResult) + '\n');
+}
+
+function errorHandler(err, req, res, next){
+
+}
+
+module.exports = router;
