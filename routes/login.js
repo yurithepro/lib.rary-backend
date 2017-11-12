@@ -100,7 +100,7 @@ function setLiveID(req, res, next){
 
 	mongo.connect(url)
 		.then(function(db) {
-			if(Date().valueOf() > res.locals.expiry)
+			if(Date().valueOf() < res.locals.expiry)
 				res.send('liveID='+ res.locals.liveID + '\n');
 			else{
 				console.log('ENTRY\n');
