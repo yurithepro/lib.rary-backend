@@ -10,6 +10,8 @@ var router = express.Router();
 //THINGS TO CONSIDER
 //Add a counter that counts login attempts and blacklists repeat offenders
 
+//add db.close()...
+
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: false }));
@@ -24,6 +26,8 @@ function format(req, res, next){
 	} else
 		res.locals.lim = 100;
 	res.locals.searchResult = null;
+	//install responses
+	res.locals.r = req.query.r;
 
 	next();
 }
